@@ -1,0 +1,153 @@
+<!-- <!doctype html>
+<html ng-app="thesopfactory">
+<head>
+<title>The SOP Factory</title>
+
+CSS declarations
+<link href="/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="/css/app.css" rel="stylesheet">
+</head>
+
+<body ng-cloak class="ng-cloak">
+	<div class="container">
+
+		Row 1 -> Navigation bar
+		<div class="row">
+			<nav class="navbar navbar-default navbar-fixed-top">
+				<div class="container">
+					<ul class="nav nav-pills">
+						<li role="presentation" class="active"><a href="#/">Home</a></li>
+						<li role="presentation"><a href="#/sopmarker">Sop Maker</a></li>
+					</ul>
+				</div>
+			</nav>
+		</div>
+		
+		<h2>Index page</h2>
+
+		Row 2 -> Display area for ui-view
+		All the views will be loaded here
+		<div ui-view></div>
+	</div>
+
+	JavaScript declarations
+	<script src="/js/angularjs/api/angular.min.js" type="text/javascript"></script>
+	<script src="/js/angularjs/api/angular-route.min.js" type="text/javascript"></script>
+	<script src="/js/angularjs/api/angular-ui-router.js" type="text/javascript"></script>
+	<script src="/js/angularjs/api/angular-sanitize.min.js" type="text/javascript"></script>
+	<script src="/js/angularjs/api/angular-animate.min.js" type="text/javascript"></script>
+	<script src="/js/angularjs/app.js" type="text/javascript"></script>
+	<script src="/js/angularjs/navigator.js" type="text/javascript"></script>
+	<script src="/js/angularjs/controller/HomeController.js" type="text/javascript"></script>
+	<script src="/js/angularjs/controller/SopmakerController.js" type="text/javascript"></script>
+</body>
+</html>
+ -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>The SOP Factory</title>
+
+	<!-- CSS declarations -->
+    <!-- Bootstrap -->
+    <link href="/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+	
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body ng-app="thesopfactory">
+    
+    <!-- NAVIGATION -->
+    
+    <div class="row">
+    	<div class="navbar navbar-default navbar-fixed-top">
+	    	<nav id="sopSecondaryNavBar" class="navbar navbar-default" role="navigation">
+		    	<div class="container">
+		    		<div class="navbar-header">
+			    		<p class="navbar-text navbar-left ">Call Us Toll Free : 1800-258-8000</p>
+		    		</div>
+		    		<div>
+		    			<ul class="nav navbar-nav navbar-right">
+		    				<li><a href="#register">Register</a></li>
+	    					<li><a href="#login">Login</a></li>
+		    			</ul>
+		    		</div>
+		    	</div>
+	    	</nav>
+	    	<nav id="sopPrimaryNavBar" class="navbar navbar-default" role="navigation">
+	    		<div class="container">
+	    			<div class="navbar-header">
+	    				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+	    					<span class="icon-bar"></span>
+	    					<span class="icon-bar"></span>
+	    					<span class="icon-bar"></span>
+	    				</button>
+	    				
+	    				<a href="#" class="navbar-brand">TheSOPFactory.com</a>
+	    			</div>
+	    			<div class="navbar-collapse collapse">
+	    				<ul class="nav navbar-nav navbar-right">
+	    					<li><a href="#home">Home</a></li>
+	    					<li><a href="#sopmaker">SOP Maker</a></li>
+	    					<li><a href="#pricing">Pricing</a></li>
+	    					<li><a href="#team">Team</a></li>
+	    					<li><a href="#contactus">Contact us</a></li>
+	    				</ul>
+	    			</div>
+	    		</div>
+	    	</nav>
+    	</div>
+    </div>
+    
+   <!-- END OF NAVIGATION -->
+    
+    <!-- HEADER -->
+    <div class="row">
+		<div id="header" class="header">
+			<div class="container">
+   				<div class="col-lg-6 col-md-6">
+   					<h1>The SOP Factory</h1>
+   					<p>
+   						Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+   						when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap 
+   						into electronic typesetting, remaining essentially unchanged.
+   					</p>
+   					<button class="btn btn-lg btn-primary">Buy Now</button>
+   					<button class="btn btn-lg btn-success">View plans</button>
+   				</div>
+   				<div class="col-lg-6 col-md-6">
+   					<img alt="" src="/images/sop_right_side.jpg">
+   				</div>
+   			</div>
+    	</div>
+    </div>
+    
+    
+    <!-- <div class="row" style="margin-top: 50px;">
+  		<div id="header" class="header">
+	    	<div class="container">
+    			<h1>Hi Nikhil Pawar</h1>
+    		</div>
+    	</div>
+    </div> --> 
+    
+    <!-- END OF HEADER -->
+    
+
+	<!-- JavaScript declarations -->
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/js/bootstrap/bootstrap.min.js"></script>
+  </body>
+</html> 

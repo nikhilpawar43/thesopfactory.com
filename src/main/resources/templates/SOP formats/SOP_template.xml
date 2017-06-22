@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sop-document>
+	<section active="1">
+		<content>
+			My name is ${name}.
+		</content>
+	</section>
+	<section active="1">
+		<content>
+			My age is ${age}.
+		</content>
+	</section>
+	<section active="0">
+		<content>
+			I passed with ${degree} Degree.
+		</content>
+	</section>
+	<section active="1">
+		<content>
+			I work at ${company} company.
+		</content>
+	</section>
+	<section active="1">
+		<content>
+			There are my hobbies- ${hobbies}.
+		</content>
+	</section>
+</sop-document>
