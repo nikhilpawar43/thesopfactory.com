@@ -1,10 +1,5 @@
-app.controller('SopmakerController', ['$scope', function($scope) {
+app.controller('SopmakerController', ['$scope', '$window', function($scope, $window) {
 	
-	// we will store all of our form data in this object
-    $scope.formData = {};
-
-    // function to process the form
-    $scope.processForm = function() {
-        alert('awesome!');
-    };
+	$window.location.href = '#/sopmaker/sopmaker-overview';
+	
 }]);

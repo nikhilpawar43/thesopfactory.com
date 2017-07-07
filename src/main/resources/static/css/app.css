@@ -200,3 +200,81 @@ p {
 }
 
 /********************************	END OF HEADER	********************************/
+
+/********************************	START OF SOP MAKER	********************************/
+
+.sopMaker {
+	height: 1080px;
+	width: 100%;
+	margin-top: 100px;
+	/* 
+		For container-fluid
+		padding: 20px; 			
+	*/
+	background-image: url("/images/3.jpg");
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	text-align: center;
+	color: #B42F13;
+}
+
+.sopForm, .sopOptions {
+	margin-top: 20px;
+	height: 600px;	
+	background-color: rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+}
+
+.sopForm a, .sopOptions a {
+	margin-top: 20px;
+	color: #6E2216; 
+	display: inline-block; 
+	font-family: 'PT Sans Narrow', Arial, sans-serif;
+	font-size: 18px; 
+	font-weight: bold;
+	width: 140px;
+	text-align: center;
+}
+
+.sopOptions a {
+	width: 100%;
+}
+
+.sopForm a:hover {
+	text-decoration: none; 
+}
+
+.sopForm span {
+	background: #EB8C7D; 
+	display: block; 
+	height: 40px; 
+	margin: 0 auto 10px; 
+	padding-top: 9px; 
+	width: 40px; 
+    border-radius: 50%;
+	color: #ffffff;  
+}
+
+.sopForm a.active span { 
+	background: #00BC8C; 
+	text-decoration: none; 
+}
+
+
+
+/********************************	END OF SOP MAKER	********************************/
+
+/********************************	START OF SOP MAKER - OVERVIEW	********************************/
+.overviewQuestionSet {
+	margin-top: 30px;
+	padding: 5px 30px;
+	text-align: left;
+	font-weight: bold;
+}
+
+.sopQuestionOptions {
+	font-weight: normal;
+}
+
+/********************************	END OF SOP MAKER - OVERVIEW	********************************/

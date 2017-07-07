@@ -1,16 +1,30 @@
 package com.thesopfactory.thesopmaker.service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
+import com.thesopfactory.thesopmaker.model.Question;
 import com.thesopfactory.thesopmaker.model.SOPUserInput;
+import com.thesopfactory.thesopmaker.model.SopWizardQuestionSet;
+import com.thesopfactory.thesopmaker.parsers.SopWizardQuestionSetParser;
 import com.thesopfactory.thesopmaker.utils.SOPTemplateParser;
 
 /**
@@ -25,8 +39,16 @@ public class TheSOPMakerService {
 	@Value("${sop.template.file.location}")
 	private String sopTemplateFileLocation;
 	
+	@Value("${sop.wizard.questionset.file.location}")
+	private String sopWizardQuestionSetFileLocation;
+	
+	private static final String OPTION_VALUE_SUBSTITUTE = "${value}"; 
+			
 	@Autowired
 	private SOPTemplateParser sopTemplateParser;
+	
+	@Autowired
+	private SopWizardQuestionSetParser sopWizardQuestionSetParser;
 	
 	public Map<Integer, String> readSOPTemplate() {
 		
@@ -93,6 +115,80 @@ public class TheSOPMakerService {
 		}
 		
 		return sopUserInputMap;
+	}
+	
+	/**
+	 * 1. This function reads the provided input XML file. 
+	 * 2. Parses the file using SopWizardQuestionSetParser SAX parser.
+	 * 3. returns SopWizardQuestionSet object containing list of questions.
+	 * @return SopWizardQuestionSet
+	 * @throws FileNotFoundException
+	 */
+	public SopWizardQuestionSet readSOPWizardQuestionSetFile() throws FileNotFoundException {
+		
+		InputStream inputStream = this.loadXMLInputFile( sopWizardQuestionSetFileLocation );
+		
+		this.parseFile(sopWizardQuestionSetParser, inputStream);
+		
+		return sopWizardQuestionSetParser.getSopWizardQuestionSet();
+	}
+	
+	/**
+	 * This function accepts the input stream and the SopWizardQuestionSetParser, and initiates the parsing process.
+	 * @param parserImpl
+	 * @param inputStream
+	 */
+	public void parseFile( DefaultHandler parserImpl, InputStream inputStream ) {
+		
+		try {
+			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+			saxParser.parse(inputStream, parserImpl);
+			
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * This function will locate the provide xml input file, and return the input stream pointing to the file.
+	 * @param filename
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public InputStream loadXMLInputFile( String filename ) throws FileNotFoundException {
+		
+		return new FileInputStream(filename);
+		
+	}
+	
+	public SopWizardQuestionSet populateUserInputValuesInQuestionOptions( SopWizardQuestionSet sopWizardQuestionSet ) {
+		
+		for ( int i=0; i<sopWizardQuestionSet.getSopWizardQuestionList().size(); i++ ) {
+			
+			Question question = sopWizardQuestionSet.getSopWizardQuestionList().get(i);
+			Set<String> options = question.getOptions();
+			String[] optionsArray = (String[]) options.toArray(new String[options.size()]);
+			
+			question.getOptions().clear();
+			
+			for ( int j=0; j<optionsArray.length; j++ ) {
+				String option = optionsArray[j];
+				if ( option.contains(OPTION_VALUE_SUBSTITUTE) ) {
+					option = option.replace(OPTION_VALUE_SUBSTITUTE , question.getUserInput());
+//					optionsArray[j] = option;
+					question.getOptions().add(option);
+				}
+			}
+			
+		}
+		
+		System.out.println("The set contains: \n" + sopWizardQuestionSet.getSopWizardQuestionList().size() );
+		
+		for ( Question question : sopWizardQuestionSet.getSopWizardQuestionList() ) {
+			System.out.println(question.getOptions());
+		}
+		
+		return sopWizardQuestionSet;
 	}
 	
 }

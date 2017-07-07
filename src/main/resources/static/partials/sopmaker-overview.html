@@ -1,18 +1,14 @@
-<!-- form-profile.html -->
-<div class="form-group">
-    <label for="name">Name</label>
-    <input type="text" class="form-control" name="name" ng-model="formData.name">
-</div>
-
-<div class="form-group">
-    <label for="email">Email</label>
-    <input type="text" class="form-control" name="email" ng-model="formData.email">
-</div>
-
-<div class="form-group row">
-<div class="col-xs-6 col-xs-offset-3">
-    <a ui-sref="form.interests" class="btn btn-block btn-info">
-    Next Section <span class="glyphicon glyphicon-circle-arrow-right"></span>
-    </a>
-</div>
+<!-- 
+	sop-overview.html 
+-->
+<div class="overviewQuestionSet">
+	<form name="sopWizardForm">
+		<div class="form-group" ng-repeat="question in sopWizardQuestionSet.sopWizardQuestionList">
+			<ul>
+				<li>{{ $index +1 }}. {{ question.value }}</li>
+				<input class="form-control" type="text" ng-model="question.userInput" />
+			</ul>
+		</div>
+		<button class="btn btn-primary" ng-click="submitOverviewAnswer()">Submit</button>
+	</form>
 </div>
