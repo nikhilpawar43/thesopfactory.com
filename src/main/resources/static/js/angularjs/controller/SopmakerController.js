@@ -1,5 +1,5 @@
-app.controller('SopmakerController', ['$scope', '$window', function($scope, $window) {
+app.controller('SopmakerController', ['$window', function($window) {
 	
-	$window.location.href = '#/sopmaker/sopmaker-overview';
+	$window.location.href = '#/sopmaker/sopmaker-create';
 	
 }]);

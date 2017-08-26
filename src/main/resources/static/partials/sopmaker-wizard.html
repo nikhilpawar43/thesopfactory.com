@@ -1,0 +1,64 @@
+<div class="col-lg-6 col-md-6">
+	<div class="sopForm">
+		<ul>
+			<li>
+				<a ng-click="getQuestionsForTabAndDepartment( departmentName, 0 )" href="" ><span ng-class="pageTabIconCssArray[0]"><i class="fa fa-briefcase" aria-hidden="true"></i></span> {{ pages[0] }}</a>
+			</li>
+			<li>
+				<a ng-click="getQuestionsForTabAndDepartment( departmentName, 1 )" href="" ><span ng-class="pageTabIconCssArray[1]"><i class="fa fa-file-text" aria-hidden="true"></i></span> {{ pages[1] }}</a>
+			</li>
+			<li>
+				<a ng-click="getQuestionsForTabAndDepartment( departmentName, 2 )" href="" ><span ng-class="pageTabIconCssArray[2]"><i class="fa fa-graduation-cap" aria-hidden="true"></i></span> {{ pages[2] }}</a>
+			</li>
+			<li>
+				<a ng-click="getQuestionsForTabAndDepartment( departmentName, 3 )" href="" ><span ng-class="pageTabIconCssArray[3]"><i class="fa fa-usd" aria-hidden="true"></i></span> {{ pages[3] }}</a>
+			</li>
+		</ul>
+		
+		<div class="overviewQuestionSet">
+			<form name="sopWizardForm">
+				<div class="form-group" ng-repeat="question in questions">
+					<ul>
+						<li>{{ $index +1 }}. {{ question.question }}</li> 
+						<div ng-if="pageName=='Department'">
+							<select class="form-control" ng-model="question.departmentName" ng-options="option.value for option in question.options">
+								<option value="">--- Choose a department ---</option>
+							</select>
+						</div>
+						<div ng-if="pageName!='Department'">
+							<input type="text" class="form-control" ng-model="question.userInput" />	
+						</div>
+					</ul>
+				</div>
+				<button class="btn btn-primary" ng-click="submitAnswers()">Submit</button>
+			</form>
+		</div>
+		
+	</div>
+</div>
+<div class="col-lg-6 col-md-6">
+	<div class="sopOptions">
+		<a><i class="fa fa-cog" aria-hidden="true"></i> Select options</a>
+
+		<div ng-if="showOptions==true" class="overviewQuestionSet">
+			<form name="sopWizardForm">
+				<div class="form-group" ng-repeat="question in questions">
+					<ul>
+						<li>{{ $index +1 }}. {{ question.question }}</li>
+						<br />
+						<span ng-repeat="option in question.options"> 
+						<label class="sopQuestionOptions"> 
+							<input type="radio" name="{{question.id}}" ng-model="question.userOptionId" ng-value="option" /> {{option.value}}
+						</label> 
+						<br />
+						</span>
+					</ul>
+				</div>
+				<button class="btn btn-info" ng-click="saveOptions()">Next</button>
+			</form>
+		</div>
+		<div class="preview" ng-if="tabNumber>0" style="margin-bottom: 20px;">
+			<button class="btn btn-success" ui-sref="sopmaker.preview">Click here to preview</button>
+		</div>
+	</div>
+</div>

@@ -1,18 +1,24 @@
 package com.thesopfactory.thesopmaker.controller;
 
 import java.io.FileNotFoundException;
-import java.util.Map;
+import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.thesopfactory.thesopmaker.model.SOPUserInput;
-import com.thesopfactory.thesopmaker.model.SopWizardQuestionSet;
+import com.lowagie.text.DocumentException;
+import com.thesopfactory.thesopmaker.model.Department;
+import com.thesopfactory.thesopmaker.model.Question;
+import com.thesopfactory.thesopmaker.service.SOPPDFGenerationService;
 import com.thesopfactory.thesopmaker.service.TheSOPMakerService;
 
 /**
@@ -20,6 +26,7 @@ Author- Nikhil
 */
 
 @RestController
+@RequestMapping("sopwizard")
 public class TheSOPMakerController {
 
 	private static final Logger log = LoggerFactory.getLogger(TheSOPMakerController.class);
@@ -27,36 +34,36 @@ public class TheSOPMakerController {
 	@Autowired
 	private TheSOPMakerService theSopMakerService;
 	
-	@PostMapping("/createSOP")
-	public Map<Integer, String> createSOP( @RequestBody SOPUserInput sopUserInput) {
+	@Autowired
+	private SOPPDFGenerationService sopPDFGenerationService;
+	
+	@Value("${sop.storage.directory}")
+	private String sopStorageDirectory;
+	
+	@GetMapping("/getAllDepartments")
+	public List<Department> getAllDepartments() {
 		
-		log.info("The user input is: " + sopUserInput);
-		
-		Map<Integer, String> sopTemplateMap = theSopMakerService.readSOPTemplate();
-		sopTemplateMap = theSopMakerService.substituteUserInputIntoSOPTemplate(sopTemplateMap, sopUserInput);
-		
-		return sopTemplateMap;
+		return theSopMakerService.getAllDepartments();
 	}
 	
-	@GetMapping("/getQuestionSetForPage")
-	public SopWizardQuestionSet getQuestionSetForPage() {
+	@GetMapping("/getQuestionSetForPagename")
+	public List<Question> getQuestionSetForPage( String pageName, String departmentName ) {
 		
-		SopWizardQuestionSet sopWizardQuestionSet = null;	
+		log.info( "Retrieving questions for Page: {} and Department name: {}", pageName, departmentName );
+		return theSopMakerService.retrieveQuestionsForPage( pageName, departmentName );
+	}
+
+	@RequestMapping( value="/loadSopPreviewPdf", method=RequestMethod.POST, produces="application/pdf")
+	public ResponseEntity<byte[]> loadSopPreviewPdf( @RequestBody List<Question> questions ) throws FileNotFoundException, DocumentException {
+
+		String sopPDFOutputFilename = sopPDFGenerationService.generateSOPPDFOutputFilename( questions.get( 0 ) );
+		sopPDFGenerationService.generateSopPdfFile( sopStorageDirectory + sopPDFOutputFilename, questions );
+		
 		try {
-			sopWizardQuestionSet = theSopMakerService.readSOPWizardQuestionSetFile();
-		} catch (FileNotFoundException e) {
-			log.error("An exception occured while reading the input file: " + e.getMessage());
+			return theSopMakerService.loadSopPreviewPdf( sopStorageDirectory, sopPDFOutputFilename );
+		} catch (IOException e) {
+			log.error( "IOException occured: {}", e.getMessage() );
+			throw new IllegalArgumentException( e.getMessage() );
 		}
-		
-		return sopWizardQuestionSet;
-		
-	}
-	
-	@PostMapping("/getQuestionSetWithUserInput")
-	public SopWizardQuestionSet getQuestionSetWithUserInput( @RequestBody SopWizardQuestionSet sopWizardQuestionSet) {
-		
-		/*	Collect the user input the substitute it in the question's options.		*/
-		
-		return theSopMakerService.populateUserInputValuesInQuestionOptions(sopWizardQuestionSet);
 	}
 }

@@ -18,19 +18,22 @@ app.config( function($stateProvider, $urlRouterProvider) {
 				controller: 'SopmakerController',
 			}
 		}
-	}).state('sopmaker.overview', {
-		url: '/sopmaker-overview',
+	}).state('sopmaker.create', {
+		url: '/sopmaker-create',
 		views: {
-			'sopMakerWizard': {
-				templateUrl: 'partials/sopmaker-overview.html',
+			'sopWizard': {
+				templateUrl: 'partials/sopmaker-wizard.html',
 				controller: 'SopMakerWizardController'
-			},
-			'sopMakerWizardOptions': {
-				templateUrl: 'partials/sopmaker-overview-options.html',
-				controller: 'SopMakerWizardOverviewController'
 			}
 		}
-		
+	}).state('sopmaker.preview', {
+		url: '/sopmaker-preview', 
+		views: {
+			'sopWizard': {
+				templateUrl: 'partials/sop-preview.html',
+				controller: 'SopPreviewController'
+			}
+		}
 	});
 	
 });

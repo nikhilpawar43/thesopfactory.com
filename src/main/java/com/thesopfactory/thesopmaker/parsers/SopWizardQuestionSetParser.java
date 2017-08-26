@@ -1,9 +1,7 @@
 package com.thesopfactory.thesopmaker.parsers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +10,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import com.thesopfactory.thesopmaker.model.Option;
 import com.thesopfactory.thesopmaker.model.Question;
 import com.thesopfactory.thesopmaker.model.SopWizardQuestionSet;
 
@@ -39,7 +38,7 @@ public class SopWizardQuestionSetParser extends DefaultHandler {
 	
 	private Question question;
 	private List<Question> sopWizardQuestionList;
-	private Set<String> options;
+	private List<Option> options;
 	private SopWizardQuestionSet sopWizardQuestionSet;
 	private String pageValue;
 	
@@ -61,8 +60,8 @@ public class SopWizardQuestionSetParser extends DefaultHandler {
 			question = new Question();
 			question.setPage(pageValue);
 			question.setId( Long.parseLong( attributes.getValue(ID) ) );
-			question.setValue(attributes.getValue("value") );
-			options = new HashSet<>();
+//			question.setValue(attributes.getValue("value") );
+			options = new ArrayList<>();
 		} else if ( qName.equals(OPTION) ) {
 			optionFlag = true;
 		}
@@ -72,7 +71,6 @@ public class SopWizardQuestionSetParser extends DefaultHandler {
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		
 		if ( qName.equals(QUESTION) ) { 
-			question.setOptions(options);
 			sopWizardQuestionList.add(question);
 		} else if ( qName.equals(SOP_QUESTION_SET) ) {
 			sopWizardQuestionSet.setSopWizardQuestionList(sopWizardQuestionList);
@@ -92,7 +90,7 @@ public class SopWizardQuestionSetParser extends DefaultHandler {
 		} else if ( questionFlag ) { 
 			questionFlag = false;
 		} else if ( optionFlag ) {
-			options.add(new String(ch, start, length).trim());
+//			options.add(new String(ch, start, length).trim());
 			optionFlag = false;
 		}
 	}

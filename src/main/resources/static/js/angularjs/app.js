@@ -1,1 +1,1 @@
-var app = angular.module('thesopfactory', ['ngAnimate', 'ui.router']);
+var app = angular.module('thesopfactory', ['ngAnimate', 'ui.router', 'ngSanitize']);

@@ -3,30 +3,7 @@
 	<div class="sopMaker">
 		<div class="container">
 			<h2>Welcome to the SOP Maker !</h2>
-			<div class="col-lg-6 col-md-6">
-				<div class="sopForm">
-					<ul>
-						<li>
-							<a ui-sref-active="active" ui-sref=".overview" href=""><span><i class="fa fa-file-text" aria-hidden="true"></i></span> Overview</a>
-						</li>
-						<li>
-							<a ui-sref-active="active" ui-sref=".educational" href=""><span><i class="fa fa-graduation-cap" aria-hidden="true"></i></span> Educational</a>
-						</li>
-						<li>
-							<a ui-sref-active="active" ui-sref=".aspirations" href=""><span><i class="fa fa-usd" aria-hidden="true"></i></span> Aspirations</a>
-						</li>
-					</ul>
-					
-					<div ui-view="sopMakerWizard"></div>
-					
-				</div>
-			</div>
-			<div class="col-lg-6 col-md-6">
-				<div class="sopOptions">
-					<a><i class="fa fa-cog" aria-hidden="true"></i> Select options</a>
-					<div ng-if="showOptions==true" ui-view="sopMakerWizardOptions"></div>
-				</div>
-			</div>
+			<div ui-view="sopWizard"></div>	
 		</div>
 	</div>
 </div>
