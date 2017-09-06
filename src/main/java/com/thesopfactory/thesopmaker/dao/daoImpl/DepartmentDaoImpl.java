@@ -35,4 +35,12 @@ public class DepartmentDaoImpl implements DepartmentDao {
 				.setParameter("departmentName", departmentName)
 				.getSingleResult();
 	}
+
+	@Override
+	public Department getDepartmentById(long departmentId) {
+		String sql = "FROM Department WHERE id=:departmentId";
+		return (Department) entityManager.createQuery( sql )
+				.setParameter("departmentId", departmentId)
+				.getSingleResult();
+	}
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lowagie.text.DocumentException;
 import com.thesopfactory.thesopmaker.model.Department;
 import com.thesopfactory.thesopmaker.model.Question;
+import com.thesopfactory.thesopmaker.model.SOPDetail;
 import com.thesopfactory.thesopmaker.service.SOPPDFGenerationService;
 import com.thesopfactory.thesopmaker.service.TheSOPMakerService;
 
@@ -46,24 +48,45 @@ public class TheSOPMakerController {
 		return theSopMakerService.getAllDepartments();
 	}
 	
-	@GetMapping("/getQuestionSetForPagename")
-	public List<Question> getQuestionSetForPage( String pageName, String departmentName ) {
+	@RequestMapping( value="/getQuestionSetForPagename", method=RequestMethod.GET, produces="application/json")
+	public List<Question> getQuestionSetForPage( String pageName, long departmentId ) {
 		
-		log.info( "Retrieving questions for Page: {} and Department name: {}", pageName, departmentName );
-		return theSopMakerService.retrieveQuestionsForPage( pageName, departmentName );
+		log.info( "Retrieving questions for Page: {} and Department ID: {}", pageName, departmentId );
+		return theSopMakerService.retrieveQuestionsForPage( pageName, departmentId );
+	}
+	
+	@RequestMapping( value="/sendQuestionsWithUserInput", method=RequestMethod.POST )
+	public ResponseEntity<List<SOPDetail>> sendQuestionsWithUserInput( @RequestBody List<Question> questions ) {
+		
+		return theSopMakerService.sendQuestionsWithUserInput( questions );
+	}
+	
+	@PostMapping("/setDepartmentForSop")
+	public ResponseEntity<SOPDetail> setDepartmentForSop( @RequestBody Question question ) {
+		
+		return theSopMakerService.setDepartmentForSop( question );
 	}
 
-	@RequestMapping( value="/loadSopPreviewPdf", method=RequestMethod.POST, produces="application/pdf")
-	public ResponseEntity<byte[]> loadSopPreviewPdf( @RequestBody List<Question> questions ) throws FileNotFoundException, DocumentException {
+	@RequestMapping( value="/loadSopPreviewPdf", method=RequestMethod.GET, produces="application/pdf")
+	public ResponseEntity<byte[]> loadSopPreviewPdf() throws FileNotFoundException, DocumentException {
 
-		String sopPDFOutputFilename = sopPDFGenerationService.generateSOPPDFOutputFilename( questions.get( 0 ) );
-		sopPDFGenerationService.generateSopPdfFile( sopStorageDirectory + sopPDFOutputFilename, questions );
+		List<SOPDetail> sopDetails = theSopMakerService.getSopDetails();
 		
-		try {
-			return theSopMakerService.loadSopPreviewPdf( sopStorageDirectory, sopPDFOutputFilename );
-		} catch (IOException e) {
-			log.error( "IOException occured: {}", e.getMessage() );
-			throw new IllegalArgumentException( e.getMessage() );
+		if (sopDetails != null & sopDetails.size() > 2 ) {
+			
+			String sopPDFOutputFilename = sopPDFGenerationService.generateSOPPDFOutputFilename( sopDetails.get( 1 ).getQuestion() );
+			sopPDFGenerationService.generateSopPdfFile( sopStorageDirectory + sopPDFOutputFilename, sopDetails );
+			
+			try {
+				return theSopMakerService.loadSopPreviewPdf( sopStorageDirectory, sopPDFOutputFilename );
+			} catch (IOException e) {
+				log.error( "IOException occured: {}", e.getMessage() );
+				throw new IllegalArgumentException( e.getMessage() );
+			}
+		} else {
+			throw new IllegalStateException("The sopDetails is not having the first 2 questions: 1. Department 2. Candidate name");
 		}
+		
 	}
+	
 }

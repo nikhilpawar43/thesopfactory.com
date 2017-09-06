@@ -14,7 +14,9 @@ import com.lowagie.text.Element;
 import com.lowagie.text.Font;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
+import com.thesopfactory.thesopmaker.model.Option;
 import com.thesopfactory.thesopmaker.model.Question;
+import com.thesopfactory.thesopmaker.model.SOPDetail;
 
 /**
 Author- Nikhil
@@ -40,13 +42,13 @@ public class SOPPDFGenerationService {
 		return sopPDFOutputFilename.toString();
 	}
 
-	public Document generateSopPdfFile ( String sopPDFFile, List<Question> questions ) throws FileNotFoundException, DocumentException {
+	public Document generateSopPdfFile ( String sopPDFFile, List<SOPDetail> sopDetails ) throws FileNotFoundException, DocumentException {
 		
 		Document document = new Document();
 		PdfWriter.getInstance( document, new FileOutputStream( sopPDFFile ) );
 		document.open();
-		document = addMetaData( document, questions.get( 0 ) );
-		document = addContent( document, questions );
+		document = addMetaData( document, sopDetails.get( 1 ).getQuestion() );
+		document = addContent( document, sopDetails );
 		document.close();
 		return document;
 	}
@@ -61,18 +63,27 @@ public class SOPPDFGenerationService {
 		return document;
 	}
 	
-	private Document addContent( Document document, List<Question> questions ) throws DocumentException {
+	private Document addContent( Document document, List<SOPDetail> sopDetails ) throws DocumentException {
 		
 		Paragraph sop = new Paragraph();
-		sop.add( new Paragraph( questions.get( 0 ).getUserInput(), HEADER_FONT ) );
-		sop.setAlignment( Element.ALIGN_CENTER);
+		sop.add( new Paragraph( sopDetails.get( 1 ).getUserInput(), HEADER_FONT ) );
+		sop.setAlignment( Element.ALIGN_CENTER );
 		addEmptyLine( sop, 1 );
 		
 		document.add( sop );
 		
-		for( Question question : questions ) {
+		for( int i=1; i<sopDetails.size(); i++ ) {
 			
-			Paragraph paragraph = new Paragraph( question.getUserOptionId().getValue(), PARAGRAPH_FONT );
+			String optionText = null;
+			
+			for ( Option option : sopDetails.get( i ).getQuestion().getOptions() ) {
+				if ( option.getId() == sopDetails.get( i ).getQuestion().getUserOption() ) {
+					optionText = option.getValue();
+				}
+				
+			}
+			
+			Paragraph paragraph = new Paragraph( String.valueOf( optionText ), PARAGRAPH_FONT );
 			paragraph.setAlignment( Element.ALIGN_JUSTIFIED );
 			document.add( paragraph );
 		}

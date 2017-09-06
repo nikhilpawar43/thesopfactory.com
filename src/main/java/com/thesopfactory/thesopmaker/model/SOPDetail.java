@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -20,7 +21,7 @@ public class SOPDetail implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue( strategy=GenerationType.AUTO )
 	private long id;
 	
 	@ManyToOne
@@ -32,7 +33,6 @@ public class SOPDetail implements Serializable {
 	private String userInput;
 	
 	private long userOptionId;
-
 	
 	public long getId() {	 return id;		}
 
@@ -53,11 +53,11 @@ public class SOPDetail implements Serializable {
 	public Question getQuestion() {  	return question;	}
 
 	public void setQuestion(Question question) {	this.question = question;	 }
-
+	
 	@Override
 	public String toString() {
 		return "SOPDetails [id=" + id + ", sop=" + sop + ", question=" + question + ", userInput=" + userInput
 				+ ", userOptionId=" + userOptionId + "]";
 	}
-	
+
 }

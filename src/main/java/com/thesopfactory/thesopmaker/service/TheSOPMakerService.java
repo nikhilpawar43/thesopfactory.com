@@ -33,6 +33,8 @@ import com.thesopfactory.thesopmaker.dao.QuestionDao;
 import com.thesopfactory.thesopmaker.model.Department;
 import com.thesopfactory.thesopmaker.model.Option;
 import com.thesopfactory.thesopmaker.model.Question;
+import com.thesopfactory.thesopmaker.model.SOP;
+import com.thesopfactory.thesopmaker.model.SOPDetail;
 import com.thesopfactory.thesopmaker.model.SOPUserInput;
 import com.thesopfactory.thesopmaker.model.SopWizardQuestionSet;
 import com.thesopfactory.thesopmaker.parsers.SopWizardQuestionSetParser;
@@ -66,6 +68,14 @@ public class TheSOPMakerService {
 	
 	@Autowired
 	private OptionDao optionDao;
+	
+	private SOP sop;
+	
+	private List<SOPDetail> sopDetails;
+	
+	public TheSOPMakerService() {
+		
+	}
 	
 	public Map<Integer, String> substituteUserInputIntoSOPTemplate(Map<Integer, String> sopTemplateMap, SOPUserInput sopUserInput) {
 		
@@ -170,34 +180,122 @@ public class TheSOPMakerService {
 	 * The functions written above will be removed down the line.
 	 */
 	
-	public List<Question> retrieveQuestionsForPage( String pageName, String departmentName ) {
+	public List<Question> retrieveQuestionsForPage( String pageName, long departmentId ) {
 		
 		List<Question> questions = null ;
 		
-		if ( pageName.equals("Department") ) {
+		if ( departmentId != 0 ) {
+
+			questions = new ArrayList<>();
 			
-			questions = questionDao.getQuestionsListByPagename(pageName);
-			List<Department> departments = departmentDao.getAllDepartments();
-			List<Option> options = new ArrayList<Option>();
-			
-			for (Department department : departments) {
-				Option option = new Option();
-				option.setValue( department.getName() );
-				options.add( option );
-				questions.get(0).setOptions( options );
+			if ( pageName.equals("Department") ) {
+				if ( this.sopDetails != null ) {
+					SOPDetail sopDetail = this.sopDetails.get( 0 );
+					Question question = sopDetail.getQuestion();
+					questions.add( question );
+				} else {
+					log.error("SopDetails list is empty or null !");
+					throw new IllegalStateException("SopDetails list is empty or null !");
+				}
+			} else {
+				if ( this.sopDetails != null ) {
+					for ( SOPDetail sopDetail : this.sopDetails) {
+						Question question = sopDetail.getQuestion();
+						if ( question.getPage().equals( pageName ) ) {
+							questions.add( question );
+						}
+					}
+					
+					if ( questions.size() == 0 ) {
+						Department department = departmentDao.getDepartmentById( departmentId );
+						questions = questionDao.getQuestionsListByPagenameAndDepartment(pageName, department.getId());
+						
+						for (Question question : questions) {
+							List<Option> options = optionDao.getOptionsByQuestion( question.getId() );
+							question.setOptions( options );
+						}
+					}
+				} else {
+					log.error("SopDetails list is empty or null !");
+					throw new IllegalStateException("SopDetails list is empty or null !");
+				}
 			}
-		} else {
-			Department department = departmentDao.getDepartmentByName( departmentName );
-			questions = questionDao.getQuestionsListByPagenameAndDepartment(pageName, department.getId());
+		} else if ( departmentId == 0 ) {
 			
-			for (Question question : questions) {
-				List<Option> options = optionDao.getOptionsByQuestion( question.getId() );
-				question.setOptions( options );
+			if ( pageName.equals("Department") ) {
+				
+				questions = questionDao.getQuestionsListByPagename(pageName);
+				List<Department> departments = departmentDao.getAllDepartments();
+				List<Option> options = new ArrayList<Option>();
+				
+				for (Department department : departments) {
+					Option option = new Option();
+					option.setId( department.getId() );
+					option.setValue( department.getName() );
+					options.add( option );
+					questions.get(0).setOptions( options );
+				}
 			}
-			
 		}
 		
 		return questions;
+	}
+	
+	public ResponseEntity<SOPDetail> setDepartmentForSop( Question question ) {
+		
+		log.info( "Create sop for department ID: " + question.getUserOption() );
+		 
+		sop = new SOP();
+		this.sopDetails = new ArrayList<>();
+		
+		SOPDetail sopDetail = new SOPDetail();
+		sopDetail.setSop( sop );
+		sopDetail.setQuestion( question );
+		sopDetail.setUserOptionId( question.getUserOption() );
+		
+		this.sopDetails.add( sopDetail );
+		
+		ResponseEntity<SOPDetail> response = new ResponseEntity<SOPDetail>( sopDetail, HttpStatus.CREATED );
+		return response;
+	}
+	
+	public ResponseEntity<List<SOPDetail>> sendQuestionsWithUserInput( List<Question> questions ) {
+		
+		List<Question> sopDetailQuestionsList = new ArrayList<>();
+		
+		for ( SOPDetail sopDetail : sopDetails ) {
+			sopDetailQuestionsList.add( sopDetail.getQuestion() );
+		}
+		
+		for ( Question question : questions ) {
+			
+			SOPDetail sopDetail = null;
+			
+			if ( sopDetailQuestionsList.contains( question ) ) {
+				
+				sopDetail = sopDetails.get( sopDetailQuestionsList.indexOf( question ) );
+				sopDetail.setSop( sop );
+				sopDetail.setQuestion( question );
+				sopDetail.setUserInput( question.getUserInput() );
+				sopDetail.setUserOptionId( question.getUserOption() );
+				
+			} else {
+				
+				sopDetail = new SOPDetail();
+				sopDetail.setSop( sop );
+				sopDetail.setQuestion( question );
+				sopDetail.setUserInput( question.getUserInput() );
+				sopDetail.setUserOptionId( question.getUserOption() );
+				sopDetails.add( sopDetail );
+				
+			}
+		}
+		
+		sopDetailQuestionsList.clear();
+		
+		ResponseEntity<List<SOPDetail>> response = new ResponseEntity<List<SOPDetail>>( sopDetails, HttpStatus.CREATED );
+				
+		return response;
 	}
 	
 	public ResponseEntity<byte[]> loadSopPreviewPdf( String sopStorageDirectory, String sopPDFOutputFilename ) throws IOException {
@@ -215,5 +313,9 @@ public class TheSOPMakerService {
 		
 		return response;
 	}
+
+	public SOP getSop() {	return sop;	  }
+
+	public List<SOPDetail> getSopDetails() {	return sopDetails;	  }
 	
 }

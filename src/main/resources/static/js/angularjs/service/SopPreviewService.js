@@ -4,10 +4,9 @@ app.service('SopPreviewSerice', ['$http', function( $http ) {
 		
 		return $http({ 
 			url: "sopwizard/loadSopPreviewPdf", 
-			method: "POST", 
+			method: "GET", 
 			headers: { 'Accept': 'application/pdf' }, 
-			responseType: 'arraybuffer',
-			data: angular.toJson( questions )
+			responseType: 'arraybuffer'
 		});
 	}
 }]);

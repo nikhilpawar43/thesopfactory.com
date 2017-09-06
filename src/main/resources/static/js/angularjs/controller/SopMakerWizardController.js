@@ -1,12 +1,12 @@
-app.controller('SopMakerWizardController', ['SopMakerWizardService', '$scope', '$rootScope', function(SopMakerWizardService, $scope, $rootScope) {
+app.controller('SopMakerWizardController', ['SopMakerWizardService', '$scope', '$rootScope', '$window', function(SopMakerWizardService, $scope, $rootScope, $window) {
 	
 	$scope.pages = [	'Department', 'Overview', 'Educational', 'Aspirations'	];
 	$scope.pageName = 'Department';
-	$scope.departmentName = 'Department';
+	$scope.departmentId = 0;
 	$scope.pageTabIconCssArray = [	'', '', '', ''	];
 	$scope.showOptions = false;
-	$scope.sop = {};
 	var INPUT_REPLACE_VARIABLE = '${value}';
+	var backupQuestionUserInput = [];
 	
 	$scope.tabNumber = 0;
 	                                                                                                                                         
@@ -17,118 +17,128 @@ app.controller('SopMakerWizardController', ['SopMakerWizardService', '$scope', '
 		$scope.pageTabIconCssArray[position] = 'pageActive'
 	}
 	
-	$scope.getQuestionsForPageAndDepartment = function( departmentName ) {
+	$scope.getQuestionsForPageAndDepartment = function( departmentId ) {
 		
 		$scope.showOptions = false;
 		$scope.setPageTabIconCssClass( $scope.tabNumber );
 		$scope.pageName = $scope.pages[ $scope.tabNumber ];
-		
-		var questionsFoundFlag = 0;
 		$scope.questions = [];
+		backupQuestionUserInput = [];
 		
-		if ( $scope.sop.questions != null && $scope.sop.questions.length>0 ) {
+		SopMakerWizardService.getQuestionSet( $scope.pageName, departmentId ).then(function successCallback(response) {
 			
-			for ( var i=0; i<$scope.sop.questions.length; i++ ) {
-				var question = $scope.sop.questions[i];
+			if ( response.data != null || response.data != undefined ) {
+				$scope.questions = response.data;
 				
-				if ( question.page == $scope.pageName ) {
-					questionsFoundFlag = 1;
-					$scope.questions.push( question );
-				}
-			}
-			
-			if ( questionsFoundFlag == 0 ) {
-				console.log('Fetching question set from SOP server.');
-				SopMakerWizardService.getQuestionSet( $scope.pageName, departmentName ).then(function successCallback(response) {
-					
-					if ( response.data != null || response.data != undefined ) {
-						$scope.questions = response.data;
-					} else {
-						console.log('There was an error while processing the questions JSON !');
+				if ( $scope.tabNumber == 0 ) {
+					if ( $scope.questions[0] != null && $scope.questions[0].userOption != 0 )
+						$scope.questions[0].userOption = {	id: $scope.questions[0].userOption	};
+				} else if ( $scope.tabNumber > 0 ) {
+					if ( $scope.questions != null && $scope.questions.length > 1 ) {
+						for ( var i=1; i<$scope.questions.length; i++ ) {
+							if ( $scope.questions[i].userOption != 0 ) {
+								$scope.showOptions = true;
+								break;
+							}
+						}
 					}
-				}, function errorCallback() {
-					console.log('There was an error while fetching SOP wizard question set !');
-				});
-			}
-		} else {
-			SopMakerWizardService.getQuestionSet( $scope.pageName, departmentName ).then(function successCallback(response) {
-				
-				if ( response.data != null || response.data != undefined ) {
-					$scope.questions = response.data;
-				} else {
-					console.log('There was an error while processing the questions JSON !');
+					
+					for ( var i=0; i<$scope.questions.length; i++ ) {
+						if ( $scope.questions[i].userInput != null ) {
+							backupQuestionUserInput.push( $scope.questions[i].userInput );
+						}
+					}
+					
 				}
-			}, function errorCallback() {
-				console.log('There was an error while fetching SOP wizard question set !');
-			});
-		}
+				
+			} else {
+				console.log('There was an error while processing the questions JSON !');
+			}
+		}, function errorCallback( response ) {
+			console.log('There was an error while fetching SOP wizard question set: ' + response.data.length);
+		});
+		
 	}
 	
-	$scope.getQuestionsForPageAndDepartment( $scope.departmentName );
+	/*********************************************************************************************************************
+	 ********************************** 	THE MAIN PROGRAM EXECUTION BEGINS HERE		*********************************
+	*********************************************************************************************************************/
 	
-	$scope.getQuestionsForTabAndDepartment = function( departmentName, tabNumber ) {
+	if ( $rootScope.departmentId != null && $rootScope.departmentId != undefined) {
+		$scope.departmentId = $rootScope.departmentId;
+		$scope.tabNumber = $rootScope.tabNumber;
+	}
+	$scope.getQuestionsForPageAndDepartment( $scope.departmentId );
+	
+	/*********************************************************************************************************************
+	 *************************************** 	END OF MAIN PROGRAM EXECUTUION		*************************************
+	*********************************************************************************************************************/
+	
+	$scope.getQuestionsForTabAndDepartment = function( departmentId, tabNumber ) {
 		
-		if ( departmentName == 'Department' && tabNumber > 0 ) {
+		if ( departmentId == 0 && tabNumber > 0 ) {
 			alert('Please select a department before navigating to other tabs !');
-		} else {
+		} else if ( departmentId != 0 && tabNumber >= 0 ) {
 			$scope.tabNumber = tabNumber;
-			$scope.getQuestionsForPageAndDepartment( $scope.departmentName );
+			$scope.getQuestionsForPageAndDepartment( $scope.departmentId );
 		}
 	}
 	
 	$scope.submitAnswers = function() {
 		
-		console.log('The tab number is: ' + $scope.tabNumber );
-		
-		if ( $scope.questions != null && $scope.questions.length >= 1 ) {
-			
-			if ( $scope.tabNumber == 0 ) {
+		if ( $scope.tabNumber == 0 ) {
+
+			SopMakerWizardService.setDepartmentForSop( $scope.questions[0] ).then( function successCallback() {
 				
 				$scope.showOptions = false;
-				$scope.departmentName = $scope.questions[0].departmentName.value;
+				$scope.departmentId = $scope.questions[0].userOption;
 				$scope.tabNumber ++;
+				$scope.getQuestionsForPageAndDepartment( $scope.departmentId );
 				
-				if ( $scope.sop.questions == null )
-					$scope.sop.questions = [];
+			}, function errorCallback() {
 				
-				$scope.sop.questions.push( $scope.questions[0] );
+			});
+		} else if ( $scope.tabNumber > 0 ) {
+			
+			$scope.showOptions = true;
+			for ( var i=0; i<$scope.questions.length; i++ ) {
 				
-				$scope.getQuestionsForPageAndDepartment( $scope.departmentName );
-				
-			} else if ( $scope.tabNumber > 0 ) {
-				
-				$scope.showOptions = true;
-				for ( var i=0; i<$scope.questions.length; i++ ) {
-					for ( var j=0; j<$scope.questions[i].options.length; j++ ) {
+				for ( var j=0; j<$scope.questions[i].options.length; j++ ) {
+					
+					if ( $scope.questions[i].options[j].value.includes( INPUT_REPLACE_VARIABLE ) ) {
 						$scope.questions[i].options[j].value = $scope.questions[i].options[j].value.replace( INPUT_REPLACE_VARIABLE, $scope.questions[i].userInput );
+					} else if ( ($scope.questions[i].options[j].value.indexOf( backupQuestionUserInput[i] ) != -1) && ( $scope.questions[i].userInput != backupQuestionUserInput[i]) ) {
+						$scope.questions[i].options[j].value = $scope.questions[i].options[j].value.replace( backupQuestionUserInput[i], $scope.questions[i].userInput );
 					}
 				}
-				
-			} else if ( $scope.tabNumber == 3 ) {
-				
-			} else if ( $scope.tabNumber == 4 ) {
-				
 			}
+			
+			backupQuestionUserInput = [];
+			for ( var i=0; i<$scope.questions.length; i++ ) {
+				if ( $scope.questions[i].userInput != null ) {
+					backupQuestionUserInput.push( $scope.questions[i].userInput );
+				}
+			}
+			
 		}
 	}
 	
 	$scope.saveOptions = function() {
 
-		console.log( 'The question is: ' + $scope.questions[0].question );
-		console.log( 'The user has selected option: ' + $scope.questions[0].userOptionId.id );
-		
-		if ( $scope.sop.questions == null )
-			$scope.sop.questions = [];
-		
-		for ( var i=1; i<$scope.questions.length; i++ )
-			$scope.sop.questions.push( $scope.questions[i] );
-
-		console.log( 'The number of questions in SOP are: ' + $scope.sop.questions.length );
-		
-		$rootScope.sop = $scope.sop;
+		SopMakerWizardService.sendQuestionsWithUserInput( $scope.questions ).then( function successCallback( response ){
+			console.log('The sop details updated successfully on SOP server.');
+		}, function errorCallback() {
+			
+		});
 		
 		$scope.tabNumber ++;
-		$scope.getQuestionsForPageAndDepartment( $scope.departmentName );
+		$scope.getQuestionsForPageAndDepartment( $scope.departmentId );
+	}
+	
+	$scope.loadPDFPreview = function() {
+		$rootScope.tabNumber = $scope.tabNumber;
+		$rootScope.departmentId = $scope.departmentId;
+		$window.location.href = '#/sopmaker/sopmaker-preview';
 	}
 	
 }]);

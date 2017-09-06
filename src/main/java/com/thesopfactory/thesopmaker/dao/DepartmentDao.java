@@ -12,4 +12,5 @@ public interface DepartmentDao {
 
 	List<Department> getAllDepartments();
 	Department getDepartmentByName( String departmentName );
+	Department getDepartmentById( long departmentId );
 }

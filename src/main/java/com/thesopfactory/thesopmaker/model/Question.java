@@ -43,7 +43,7 @@ public class Question implements Serializable {
 	private String userInput;
 	
 	@Transient
-	private Option userOptionId;
+	private long userOption;
 	
 	public long getId() {	return id;		}
 
@@ -69,11 +69,41 @@ public class Question implements Serializable {
 
 	public void setUserInput(String userInput) {	this.userInput = userInput;		}
 
-	public Option getUserOptionId() {	 return userOptionId;	 }
+	public long getUserOption() {	 return userOption;	 }
 
-	public void setUserOptionId(Option userOptionId) {	  this.userOptionId = userOptionId;		}
+	public void setUserOption(long userOption) {	  this.userOption = userOption;		}
 
 	public static long getSerialversionuid() {	return serialVersionUID;	}
+
+	
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Question))
+			return false;
+		Question other = (Question) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 
 	@Override
 	public String toString() {
