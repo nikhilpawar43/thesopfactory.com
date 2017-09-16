@@ -307,3 +307,12 @@ p {
 .overview_layout {
 	background: #B63520; 
 }
+
+.loginForm {
+	margin-top: 50px;
+	width: 40%;
+}
+
+.loginForm label, .loginForm button {
+	float: left;
+}

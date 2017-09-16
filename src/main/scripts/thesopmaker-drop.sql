@@ -1,6 +1,5 @@
-
-    alter table options 
-        drop constraint FK5bmv46so2y5igt9o9n9w4fh6y;
+    alter table authorities 
+        drop constraint FKk91upmbueyim93v469wj7b2qh;
 
     alter table questions 
         drop constraint FK124be202h7u31e4s1pl9cdqnd;
@@ -16,6 +15,8 @@
 
     alter table sops 
         drop constraint FK72qu9y6x1p1e9c1mvr5qdm5ii;
+
+    drop table if exists authorities cascade;
 
     drop table if exists departments cascade;
 

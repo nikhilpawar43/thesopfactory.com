@@ -55,7 +55,13 @@ app.controller('SopMakerWizardController', ['SopMakerWizardService', '$scope', '
 				console.log('There was an error while processing the questions JSON !');
 			}
 		}, function errorCallback( response ) {
-			console.log('There was an error while fetching SOP wizard question set: ' + response.data.length);
+			
+			var error = response.data;
+			if ( error.code == 403 ) {
+				console.log( 'The user tried to access a protected web service endpoint, which resulted in error: ' + error.code );
+				$window.location.href = '/#/home/403.html';
+			}
+			
 		});
 		
 	}

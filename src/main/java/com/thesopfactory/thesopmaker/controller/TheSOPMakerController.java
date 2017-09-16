@@ -28,7 +28,7 @@ Author- Nikhil
 */
 
 @RestController
-@RequestMapping("sopwizard")
+@RequestMapping( "sopwizard" )
 public class TheSOPMakerController {
 
 	private static final Logger log = LoggerFactory.getLogger(TheSOPMakerController.class);
